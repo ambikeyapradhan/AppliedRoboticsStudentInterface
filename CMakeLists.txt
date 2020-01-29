@@ -17,8 +17,13 @@ include_directories(
 ## CREATE EXECUTABLE LIBRARY
 add_library(student SHARED
    src/student_interface.cpp
-   ##src/image_undistort.cpp
+   src/image_undistort.cpp
    src/dubins_curve.cpp
+   src/clipper.cpp
+   src/PRM.cpp
+   src/collision_detection.cpp
+   src/Utils.cpp
+   src/KDTree.cpp
 )
 
 target_link_libraries(student

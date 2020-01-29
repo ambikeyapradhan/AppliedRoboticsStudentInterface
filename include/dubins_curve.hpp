@@ -7,6 +7,8 @@
 #define DUBINS_H
 
 
+#include "student_planning_interface.hpp"
+
 
 void dubins_test();
 
@@ -32,6 +34,25 @@ typedef struct
     DubinsPathType type; 
 } DubinsPath;
 
+struct arc_extract
+{
+    Point start_point;
+    Point end_point;
+    float radius;
+    Point center;
+    float length;
+    int LSR;
+
+};
+
+// struct line_extract @Alvaro NOT USED ANYMORE
+// {
+//     Point start_point;
+//     Point end_point;
+//     float length;
+
+// };
+
 #define EDUBOK        (0)   /* No error */
 #define EDUBCOCONFIGS (1)   /* Colocated configurations */
 #define EDUBPARAM     (2)   /* Path parameterisitation error */
@@ -46,7 +67,7 @@ typedef struct
  * @note the user_data parameter is forwarded from the caller
  * @note return non-zero to denote sampling should be stopped
  */
-typedef int (*DubinsPathSamplingCallback)(double q[3], double t, void* user_data);
+typedef int (*DubinsPathSamplingCallback)(double q[3], double t, void* user_data,DubinsPath* path,double end_point_segments[6]);
 
 /**
  * Generate a path from an initial configuration to
@@ -116,7 +137,7 @@ DubinsPathType dubins_path_type(DubinsPath* path);
  * @param q    - the configuration result
  * @returns    - non-zero if 't' is not in the correct range
  */
-int dubins_path_sample(DubinsPath* path, double t, double q[3]);
+int dubins_path_sample(DubinsPath* path, double t, double q[3],double end_point_segments[6]);
 
 /**
  * Walk along the path at a fixed sampling interval, calling the
@@ -134,7 +155,7 @@ int dubins_path_sample(DubinsPath* path, double t, double q[3]);
 int dubins_path_sample_many(DubinsPath* path, 
                             double stepSize, 
                             DubinsPathSamplingCallback cb, 
-                            void* user_data);
+                            void* user_data,double end_point_segments[6]);
 
 /**
  * Convenience function to identify the endpoint of a path
@@ -153,5 +174,22 @@ int dubins_path_endpoint(DubinsPath* path, double q[3]);
  */
 int dubins_extract_subpath(DubinsPath* path, double t, DubinsPath* newpath);
 
+
+
+//Helper functions
+
+bool dubins_wrapper_api(Path& path,struct arc_extract three_seg[3],double start_dubins[3],double end_dubins[3],double rho);
+
+/**
+ * Convenience function to extract a subset of a path
+ *
+ * @param path    - an DubinsPath path
+ * @param end_point_segments       - end points of segment 1 & 2
+ * @param three_seg - Each segment extracted and its data
+ * @param goal - segmet 3 end point
+ */
+void dubins_segments_extract(DubinsPath *path, double *end_point_segments,double rho,struct arc_extract three_seg[3] ,double goal[3]);
+
+Point find_center(Point start,Point end,float radius,float length,int LSR);
 
 #endif
